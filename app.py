@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo  # Modul bawaan Python untuk zona waktu
 from geopy.distance import geodesic
 import streamlit as st
 from streamlit_geolocation import streamlit_geolocation
@@ -6,14 +7,20 @@ from streamlit_geolocation import streamlit_geolocation
 # Konfigurasi Kantor Jatinunggal
 KANTOR_LAT = -6.948340492177861
 KANTOR_LON = 108.12643322430392
-RADIUS_MAX = 10000  # Diubah menjadi 10.000 meter untuk uji coba
+RADIUS_MAX = 10000  # 10 km untuk uji coba
 
 st.title("📍 Aplikasi Absensi PKL Geofencing (Mode Uji Coba)")
 st.markdown("Kecamatan Jatinunggal")
 
-# 1. Validasi Sesi Waktu (WIB / Server Time)
-now = datetime.now()
+# --- MENGAMBIL WAKTU INDONESIA (WIB / Asia/Jakarta) ---
+tz_wib = ZoneInfo("Asia/Jakarta")
+now = datetime.now(tz_wib)
 current_time = now.time()
+
+# Tampilkan informasi waktu server lokal untuk memastikan
+st.write(
+    f"🕒 Waktu Server saat ini (WIB): **{now.strftime('%H:%M:%S')}**"
+)
 
 # Jam Pagi: 05.00 - 09.00 | Jam Pulang: 14.00 - 18.00
 is_sesi_pagi = (
@@ -48,14 +55,12 @@ if nama_siswa:
       " akurat."
   )
 
-  # Mengambil koordinat perangkat siswa
   loc = streamlit_geolocation()
 
   if loc.get("latitude") and loc.get("longitude"):
     lat_siswa = loc["latitude"]
     lon_siswa = loc["longitude"]
 
-    # Hitung jarak menggunakan Geopy
     jarak = geodesic((lat_siswa, lon_siswa), (KANTOR_LAT, KANTOR_LON)).meters
 
     st.write(f"Jarak Anda dari titik kantor: **{round(jarak, 2)} meter**")
@@ -66,16 +71,14 @@ if nama_siswa:
       )
 
       st.subheader("2. Ambil Foto Kegiatan (Selfie)")
-      # Kamera bawaan Streamlit
       foto_selfie = st.camera_input("Ambil Foto Selfie Kegiatan PKL")
 
       if foto_selfie:
         keterangan = st.text_area("Keterangan Kegiatan / Pekerjaan Hari Ini")
 
         if st.button("Kirim Absensi"):
-          # Data siap dikirim ke database cloud / Google Sheets
           data_absen = {
-              "Waktu": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+              "Waktu": now.strftime("%Y-%m-%d %H:%M:%S"),
               "Nama": nama_siswa,
               "Sesi": sesi_aktif,
               "Jarak": round(jarak, 2),
