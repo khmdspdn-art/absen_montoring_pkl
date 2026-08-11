@@ -1,2 +1,4 @@
-pandas
 streamlit
+streamlit-geolocation
+geopy
+pandas
