@@ -7,7 +7,7 @@ from streamlit_geolocation import streamlit_geolocation
 # Konfigurasi Kantor Jatinunggal
 KANTOR_LAT = -6.948340492177861
 KANTOR_LON = 108.12643322430392
-RADIUS_MAX = 10000  # 10 km untuk uji coba
+RADIUS_MAX = 13000  # 10 km untuk uji coba
 
 st.title("📍 Aplikasi Absensi PKL Geofencing (Mode Uji Coba)")
 st.markdown("Kecamatan Jatinunggal")
